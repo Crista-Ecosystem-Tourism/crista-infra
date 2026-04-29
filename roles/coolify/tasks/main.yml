@@ -1,0 +1,27 @@
+---
+# Идемпотентная установка Coolify через официальный installer.
+# Запускается только если coolify ещё не установлен.
+
+- name: Проверить наличие установленного Coolify
+  ansible.builtin.stat:
+    path: "{{ coolify_data_dir }}/source/docker-compose.yml"
+  register: coolify_compose
+
+- name: Скачать Coolify installer
+  ansible.builtin.get_url:
+    url: https://cdn.coollabs.io/coolify/install.sh
+    dest: /root/coolify-install.sh
+    mode: "0755"
+    force: true
+  when: not coolify_compose.stat.exists
+
+- name: Запустить Coolify installer
+  ansible.builtin.command: bash /root/coolify-install.sh
+  args:
+    creates: "{{ coolify_data_dir }}/source/docker-compose.yml"
+  when: not coolify_compose.stat.exists
+
+- name: Coolify уже установлен — пропуск
+  ansible.builtin.debug:
+    msg: "Coolify уже установлен в {{ coolify_data_dir }}, инсталлятор пропущен."
+  when: coolify_compose.stat.exists

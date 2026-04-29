@@ -1,0 +1,4 @@
+inventory/hosts.yml
+group_vars/*.local.yml
+*.retry
+.vault_pass

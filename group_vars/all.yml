@@ -1,0 +1,32 @@
+timezone: "Europe/Moscow"
+
+base_packages:
+  - curl
+  - ca-certificates
+  - gnupg
+  - lsb-release
+  - git
+  - htop
+  - jq
+  - ripgrep
+  - ufw
+  - fail2ban
+  - unattended-upgrades
+
+manage_swap: true
+swap_size_mb: 4096
+swap_path: /swapfile
+
+manage_firewall: true
+allowed_tcp_ports:
+  - 22
+  - 80
+  - 443
+  - 8000
+
+harden_ssh: true
+ssh_password_authentication: "no"
+ssh_permit_root_login: "prohibit-password"
+
+install_coolify: true
+coolify_data_dir: /data/coolify
