@@ -43,17 +43,26 @@
         group: root
         mode: "0600"
 
+    # Повторный прогон: файл уже включён как swap — mkswap свалится («is mounted»)
+    - name: Swap уже активен (путь в /proc/swaps)
+      ansible.builtin.command: grep -F "{{ swap_path }}" /proc/swaps
+      register: swap_already_active
+      changed_when: false
+      failed_when: false
+
     - name: mkswap
       ansible.builtin.command: "mkswap {{ swap_path }}"
       register: mkswap_run
-      changed_when: "'Setting up swapspace' in mkswap_run.stdout or 'mkswap' in mkswap_run.stderr"
-      failed_when: mkswap_run.rc != 0 and 'already' not in mkswap_run.stderr
+      when: swap_already_active.rc != 0
+      changed_when: "'Setting up swapspace' in (mkswap_run.stdout | default(''))"
+      failed_when: mkswap_run.rc != 0
 
     - name: swapon
       ansible.builtin.command: "swapon {{ swap_path }}"
       register: swapon_run
+      when: swap_already_active.rc != 0
       changed_when: swapon_run.rc == 0
-      failed_when: swapon_run.rc != 0 and 'already' not in swapon_run.stderr
+      failed_when: swapon_run.rc != 0
 
     - name: fstab запись для swap
       ansible.posix.mount:

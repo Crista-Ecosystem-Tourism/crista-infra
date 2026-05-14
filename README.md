@@ -48,12 +48,14 @@ ansible-playbook playbooks/bootstrap.yml
 - Зайти в Coolify (`http://<host>:8000`), создать первого админа.
 - Подключить GitHub-репозиторий **`crs`** (ветка `main`) как Docker Compose Application.
 - Задать переменные окружения / секреты приложения (как в текущем проде).
+  - Если фронт открываете **напрямую по `http(s)://IP:3333`**, без домена Coolify, задайте **`COMPOSE_LAN_BIND=0.0.0.0`** иначе порты висят на `127.0.0.1` и снаружи не доступны (см. `crs/.env.example`).
+  - Если сайт через **домен в Coolify**, в UI назначьте FQDN **сервису `frontend`** (контейнерный порт **80**): прокси ходит по внутренней сети стека.
 - DNS и сертификаты.
 - В GitHub секреты репозитория **`crs`** обновить **`COOLIFY_DEPLOY_WEBHOOK`** (и при необходимости **`COOLIFY_TOKEN`**) — webhook от **нового** инстанса Coolify.
 
 ## Сменить переменные
 
-`group_vars/all.yml` — список пакетов, swap, порты ufw, ssh-флаги, `install_coolify`.
+`inventory/group_vars/all.yml` — список пакетов, swap, порты ufw, ssh-флаги, `install_coolify`.
 
 ## Как это вписывается в общий пайплайн
 

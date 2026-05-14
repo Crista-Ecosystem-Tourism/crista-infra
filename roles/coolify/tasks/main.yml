@@ -7,9 +7,33 @@
     path: "{{ coolify_data_dir }}/source/docker-compose.yml"
   register: coolify_compose
 
-- name: Скачать Coolify installer
+# Сеть VPS → CDN часто плохая: качаем на control node (Mac) в файл без гигантского Jinja —
+# иначе lookup(url)+copy грузит весь скрипт в RAM и воркер Python падает («dead state»).
+- name: Каталог кэша установщика на control node
+  ansible.builtin.file:
+    path: "{{ playbook_dir }}/.ansible-cache"
+    state: directory
+    mode: "0700"
+  delegate_to: localhost
+  become: false
+  run_once: true
+  when: not coolify_compose.stat.exists
+
+- name: Скачать Coolify installer на control node
   ansible.builtin.get_url:
-    url: https://cdn.coollabs.io/coolify/install.sh
+    url: "{{ coolify_installer_url }}"
+    dest: "{{ playbook_dir }}/.ansible-cache/coolify-install.sh"
+    mode: "0755"
+    force: true
+    timeout: 120
+  delegate_to: localhost
+  become: false
+  run_once: true
+  when: not coolify_compose.stat.exists
+
+- name: Скопировать установщик на сервер
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/.ansible-cache/coolify-install.sh"
     dest: /root/coolify-install.sh
     mode: "0755"
     force: true

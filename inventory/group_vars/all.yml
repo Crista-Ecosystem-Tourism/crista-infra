@@ -31,3 +31,4 @@ ssh_permit_root_login: "prohibit-password"
 
 install_coolify: true
 coolify_data_dir: /data/coolify
+coolify_installer_url: https://cdn.coollabs.io/coolify/install.sh

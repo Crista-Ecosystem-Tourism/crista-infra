@@ -1,4 +1,5 @@
 inventory/hosts.yml
-group_vars/*.local.yml
+inventory/group_vars/*.local.yml
 *.retry
 .vault_pass
+playbooks/.ansible-cache/
