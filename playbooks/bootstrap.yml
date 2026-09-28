@@ -8,3 +8,5 @@
     - role: docker
     - role: coolify
       when: install_coolify | bool
+    - role: backups
+      when: configure_backups | bool

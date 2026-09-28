@@ -1,0 +1,63 @@
+---
+- name: Установить PostgreSQL client для backup job
+  ansible.builtin.apt:
+    name: postgresql-client
+    state: present
+    update_cache: true
+
+- name: Проверить server-only backup environment
+  ansible.builtin.stat:
+    path: "{{ crista_backup_env_file }}"
+  register: crista_backup_env
+
+- name: Проверить права backup environment
+  ansible.builtin.assert:
+    that:
+      - crista_backup_env.stat.exists
+      - crista_backup_env.stat.isreg
+      - crista_backup_env.stat.pw_name == 'root'
+      - crista_backup_env.stat.mode == '0600'
+    fail_msg: >-
+      Create {{ crista_backup_env_file }} on the host with owner root, mode 0600,
+      DATABASE_URL and BACKUP_DIR before enabling configure_backups.
+
+- name: Создать каталог backup job
+  ansible.builtin.file:
+    path: /usr/local/lib/crista-backup
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Установить PostgreSQL backup script
+  ansible.builtin.copy:
+    src: backup_postgres.sh
+    dest: /usr/local/lib/crista-backup/backup_postgres.sh
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Установить systemd service для backup
+  ansible.builtin.template:
+    src: crista-backup.service.j2
+    dest: /etc/systemd/system/crista-backup.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: reload systemd
+
+- name: Установить systemd timer для backup
+  ansible.builtin.template:
+    src: crista-backup.timer.j2
+    dest: /etc/systemd/system/crista-backup.timer
+    owner: root
+    group: root
+    mode: "0644"
+  notify: reload systemd
+
+- name: Включить persistent backup timer
+  ansible.builtin.systemd:
+    name: crista-backup.timer
+    enabled: true
+    state: started
+    daemon_reload: true

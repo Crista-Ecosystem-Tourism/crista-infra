@@ -42,6 +42,13 @@ ansible-playbook playbooks/bootstrap.yml
 1. **common**: timezone, базовые пакеты (`curl`, `git`, `ufw`, `fail2ban`, `ripgrep`, `jq`…), `unattended-upgrades`, swap-файл, `ufw` (22/80/443/8000), хардненинг sshd (`PasswordAuthentication no`, `PermitRootLogin prohibit-password`).
 2. **docker**: официальный repo Docker → `docker-ce` + `docker-compose-plugin`, `systemctl enable --now docker`, проверка `docker compose version`.
 3. **coolify**: официальный installer Coolify (`https://cdn.coollabs.io/coolify/install.sh`); пропускается, если Coolify уже установлен (`/data/coolify/source/docker-compose.yml`).
+4. **backups**: optional systemd timer для PostgreSQL backup. По умолчанию выключен.
+
+## Scheduled backup
+
+На сервере создайте `/etc/crista/backup.env` с owner `root`, mode `0600`. В нём должны быть `DATABASE_URL` и `BACKUP_DIR`; для локальной медиатеки также задайте `MEDIA_STORAGE_BACKEND=local` и `MEDIA_STORAGE_DIR`. Не добавляйте этот файл в Git.
+
+После этого включите `configure_backups: true` в inventory и запустите bootstrap. Timer запускает backup ежедневно в `03:17` в timezone сервера, сохраняет пропущенный запуск после перезагрузки и использует те же PostgreSQL dump/checksum/retention правила, что и runbook `ai_agent/ops`.
 
 ## После bootstrap (вручную, в UI Coolify)
 

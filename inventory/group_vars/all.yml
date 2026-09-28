@@ -32,3 +32,9 @@ ssh_permit_root_login: "prohibit-password"
 install_coolify: true
 coolify_data_dir: /data/coolify
 coolify_installer_url: https://cdn.coollabs.io/coolify/install.sh
+
+# Enables a host-level PostgreSQL backup timer only after /etc/crista/backup.env
+# has been provisioned with DATABASE_URL and BACKUP_DIR outside this repository.
+configure_backups: false
+crista_backup_env_file: /etc/crista/backup.env
+crista_backup_on_calendar: "*-*-* 03:17:00"

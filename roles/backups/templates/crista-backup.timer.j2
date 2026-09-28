@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Crista PostgreSQL backup daily
+
+[Timer]
+OnCalendar={{ crista_backup_on_calendar }}
+Persistent=true
+Unit=crista-backup.service
+
+[Install]
+WantedBy=timers.target

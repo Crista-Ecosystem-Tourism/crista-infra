@@ -1,0 +1,7 @@
+[Unit]
+Description=Crista PostgreSQL backup
+
+[Service]
+Type=oneshot
+EnvironmentFile={{ crista_backup_env_file }}
+ExecStart=/usr/local/lib/crista-backup/backup_postgres.sh
